@@ -161,6 +161,7 @@ def get_default_memory_config():
     openai_embedding_api_key = os.environ.get("OPENAI_EMBEDDING_API_KEY", openai_api_key)  # Default to same API key as LLM
     openai_embedding_model = os.environ.get("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
     openai_embedding_dimension = int(os.environ.get("OPENAI_EMBEDDING_DIMENSION", "1536"))
+    supports_streaming = os.environ.get("OPENAI_SUPPORTS_STREAMING", "False").lower() == "true"
     
     qdrant_url = os.environ.get("QDRANT_URL", "http://localhost:6333")
     qdrant_collection_name = os.environ.get("QDRANT_COLLECTION_NAME", "openmemory")
@@ -185,7 +186,8 @@ def get_default_memory_config():
                 "temperature": 0.1,
                 "max_tokens": 2000,
                 "api_key": "env:OPENAI_API_KEY",
-                "openai_base_url": openai_base_url
+                "openai_base_url": openai_base_url,
+                "supports_streaming": supports_streaming
             }
         },
         "embedder": {

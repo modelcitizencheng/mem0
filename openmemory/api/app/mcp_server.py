@@ -122,7 +122,7 @@ async def add_memories(text: str) -> str:
                     elif result['event'] == 'DELETE':
                         if memory:
                             memory.state = MemoryState.deleted
-                            memory.deleted_at = datetime.datetime.now(datetime.UTC)
+                            memory.deleted_at = datetime.datetime.now(datetime.timezone.utc)
                             # Create history entry
                             history = MemoryStatusHistory(
                                 memory_id=memory_id,
@@ -340,7 +340,7 @@ async def delete_all_memories() -> str:
                     logging.warning(f"Failed to delete memory {memory_id} from vector store: {delete_error}")
 
             # Update each memory's state and create history entries
-            now = datetime.datetime.now(datetime.UTC)
+            now = datetime.datetime.now(datetime.timezone.utc)
             for memory_id in accessible_memory_ids:
                 memory = db.query(Memory).filter(Memory.id == memory_id).first()
                 # Update memory state
