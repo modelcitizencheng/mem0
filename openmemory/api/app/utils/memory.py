@@ -194,7 +194,7 @@ def get_default_memory_config():
                 "model": openai_embedding_model,
                 "api_key": "env:OPENAI_EMBEDDING_API_KEY",  # Default to same API key as LLM
                 "openai_base_url": openai_embedding_base_url,
-                "dims": openai_embedding_dimension
+                "embedding_dims": openai_embedding_dimension
             }
         },
         "version": "v1.1"
