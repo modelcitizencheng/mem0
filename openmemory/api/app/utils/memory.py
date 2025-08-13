@@ -175,8 +175,6 @@ def get_default_memory_config():
             "provider": "qdrant",
             "config": {
                 "collection_name": qdrant_collection_name,
-                "host": "mem0_store",
-                "port": 6333,
                 "url": qdrant_url
             }
         },
