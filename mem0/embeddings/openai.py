@@ -13,7 +13,7 @@ class OpenAIEmbedding(EmbeddingBase):
         super().__init__(config)
 
         self.config.model = self.config.model or "text-embedding-3-small"
-        self.config.embedding_dims = self.config.embedding_dims or 1536
+        self.config.embedding_dims = self.config.embedding_dims or 1024
 
         api_key = self.config.api_key or os.getenv("OPENAI_API_KEY")
         base_url = (

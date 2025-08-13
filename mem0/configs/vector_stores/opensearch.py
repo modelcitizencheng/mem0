@@ -10,7 +10,7 @@ class OpenSearchConfig(BaseModel):
     user: Optional[str] = Field(None, description="Username for authentication")
     password: Optional[str] = Field(None, description="Password for authentication")
     api_key: Optional[str] = Field(None, description="API key for authentication (if applicable)")
-    embedding_model_dims: int = Field(1536, description="Dimension of the embedding vector")
+    embedding_model_dims: int = Field(1024, description="Dimension of the embedding vector")
     verify_certs: bool = Field(False, description="Verify SSL certificates (default False for OpenSearch)")
     use_ssl: bool = Field(False, description="Use SSL for connection (default False for OpenSearch)")
     http_auth: Optional[object] = Field(None, description="HTTP authentication method / AWS SigV4")

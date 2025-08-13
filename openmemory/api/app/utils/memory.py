@@ -160,7 +160,7 @@ def get_default_memory_config():
     openai_embedding_base_url = os.environ.get("OPENAI_EMBEDDING_BASE_URL", "https://api.openai.com/v1")
     openai_embedding_api_key = os.environ.get("OPENAI_EMBEDDING_API_KEY", openai_api_key)  # Default to same API key as LLM
     openai_embedding_model = os.environ.get("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
-    openai_embedding_dimension = int(os.environ.get("OPENAI_EMBEDDING_DIMENSION", "1536"))
+    openai_embedding_dimension = int(os.environ.get("OPENAI_EMBEDDING_DIMENSION", "1024"))
     
     qdrant_url = os.environ.get("QDRANT_URL", "http://localhost:6333")
     qdrant_collection_name = os.environ.get("QDRANT_COLLECTION_NAME", "openmemory")

@@ -46,7 +46,7 @@ def get_or_create_user_id(vector_store):
 
     # If we get here, we need to insert the user_id
     try:
-        dims = getattr(vector_store, "embedding_model_dims", 1536)
+        dims = getattr(vector_store, "embedding_model_dims", 1024)
         vector_store.insert(
             vectors=[[0.1] * dims], payloads=[{"user_id": user_id, "type": "user_identity"}], ids=[user_id]
         )

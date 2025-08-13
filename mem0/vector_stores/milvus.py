@@ -38,7 +38,7 @@ class MilvusDB(VectorStoreBase):
             url (str): Full URL for Milvus/Zilliz server.
             token (str): Token/api_key for Zilliz server / for local setup defaults to None.
             collection_name (str): Name of the collection (defaults to mem0).
-            embedding_model_dims (int): Dimensions of the embedding model (defaults to 1536).
+            embedding_model_dims (int): Dimensions of the embedding model (defaults to 1024).
             metric_type (MetricType): Metric type for similarity search (defaults to L2).
             db_name (str): Name of the database (defaults to "").
         """
@@ -62,7 +62,7 @@ class MilvusDB(VectorStoreBase):
 
         Args:
             collection_name (str): Name of the collection (defaults to mem0).
-            vector_size (str): Dimensions of the embedding model (defaults to 1536).
+            vector_size (str): Dimensions of the embedding model (defaults to 1024).
             metric_type (MetricType, optional): etric type for similarity search. Defaults to MetricType.COSINE.
         """
 

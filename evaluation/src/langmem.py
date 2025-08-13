@@ -62,7 +62,7 @@ class LangMem:
     ):
         self.store = InMemoryStore(
             index={
-                "dims": 1536,
+                "dims": 1024,
                 "embed": f"openai:{os.getenv('EMBEDDING_MODEL')}",
             }
         )

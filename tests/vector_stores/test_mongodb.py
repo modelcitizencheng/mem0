@@ -25,7 +25,7 @@ def mongo_vector_fixture(mock_mongo_client):
     mongo_vector = MongoDB(
         db_name="test_db",
         collection_name="test_collection",
-        embedding_model_dims=1536,
+        embedding_model_dims=1024,
         mongo_uri="mongodb://username:password@localhost:27017",
     )
     return mongo_vector, mock_collection, mock_db
@@ -34,7 +34,7 @@ def mongo_vector_fixture(mock_mongo_client):
 def test_initalize_create_col(mongo_vector_fixture):
     mongo_vector, mock_collection, mock_db = mongo_vector_fixture
     assert mongo_vector.collection_name == "test_collection"
-    assert mongo_vector.embedding_model_dims == 1536
+    assert mongo_vector.embedding_model_dims == 1024
     assert mongo_vector.db_name == "test_db"
 
     # Verify create_col being called
@@ -54,7 +54,7 @@ def test_initalize_create_col(mongo_vector_fixture):
                 "fields": {
                     "embedding": {
                         "type": "knnVector",
-                        "dimensions": 1536,
+                        "dimensions": 1024,
                         "similarity": "cosine",
                     }
                 },
@@ -66,7 +66,7 @@ def test_initalize_create_col(mongo_vector_fixture):
 
 def test_insert(mongo_vector_fixture):
     mongo_vector, mock_collection, _ = mongo_vector_fixture
-    vectors = [[0.1] * 1536, [0.2] * 1536]
+    vectors = [[0.1] * 1024, [0.2] * 1024]
     payloads = [{"name": "vector1"}, {"name": "vector2"}]
     ids = ["id1", "id2"]
 
@@ -80,7 +80,7 @@ def test_insert(mongo_vector_fixture):
 
 def test_search(mongo_vector_fixture):
     mongo_vector, mock_collection, _ = mongo_vector_fixture
-    query_vector = [0.1] * 1536
+    query_vector = [0.1] * 1024
     mock_collection.aggregate.return_value = [
         {"_id": "id1", "score": 0.9, "payload": {"key": "value1"}},
         {"_id": "id2", "score": 0.8, "payload": {"key": "value2"}},
@@ -113,7 +113,7 @@ def test_search(mongo_vector_fixture):
 def test_search_with_filters(mongo_vector_fixture):
     """Test search with agent_id and run_id filters."""
     mongo_vector, mock_collection, _ = mongo_vector_fixture
-    query_vector = [0.1] * 1536
+    query_vector = [0.1] * 1024
     mock_collection.aggregate.return_value = [
         {"_id": "id1", "score": 0.9, "payload": {"user_id": "alice", "agent_id": "agent1", "run_id": "run1"}},
     ]
@@ -147,7 +147,7 @@ def test_search_with_filters(mongo_vector_fixture):
 def test_search_with_single_filter(mongo_vector_fixture):
     """Test search with single filter."""
     mongo_vector, mock_collection, _ = mongo_vector_fixture
-    query_vector = [0.1] * 1536
+    query_vector = [0.1] * 1024
     mock_collection.aggregate.return_value = [
         {"_id": "id1", "score": 0.9, "payload": {"user_id": "alice"}},
     ]
@@ -172,7 +172,7 @@ def test_search_with_single_filter(mongo_vector_fixture):
 def test_search_with_no_filters(mongo_vector_fixture):
     """Test search with no filters."""
     mongo_vector, mock_collection, _ = mongo_vector_fixture
-    query_vector = [0.1] * 1536
+    query_vector = [0.1] * 1024
     mock_collection.aggregate.return_value = [
         {"_id": "id1", "score": 0.9, "payload": {"key": "value1"}},
     ]
@@ -206,7 +206,7 @@ def test_delete(mongo_vector_fixture):
 def test_update(mongo_vector_fixture):
     mongo_vector, mock_collection, _ = mongo_vector_fixture
     vector_id = "id1"
-    updated_vector = [0.3] * 1536
+    updated_vector = [0.3] * 1024
     updated_payload = {"name": "updated_vector"}
 
     mock_collection.update_one.return_value = MagicMock(matched_count=1)

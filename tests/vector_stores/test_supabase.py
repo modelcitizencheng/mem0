@@ -17,7 +17,7 @@ def mock_collection():
     collection = Mock()
     collection.name = "test_collection"
     collection.vectors = 100
-    collection.dimension = 1536
+    collection.dimension = 1024
     collection.index_method = "hnsw"
     collection.distance_metric = "cosine_distance"
     collection.describe.return_value = collection
@@ -33,7 +33,7 @@ def supabase_instance(mock_vecs_client, mock_collection):
     instance = Supabase(
         connection_string="postgresql://user:password@localhost:5432/test",
         collection_name="test_collection",
-        embedding_model_dims=1536,
+        embedding_model_dims=1024,
         index_method=IndexMethod.HNSW,
         index_measure=IndexMeasure.COSINE,
     )
@@ -44,9 +44,9 @@ def supabase_instance(mock_vecs_client, mock_collection):
 
 
 def test_create_col(supabase_instance, mock_vecs_client, mock_collection):
-    supabase_instance.create_col(1536)
+    supabase_instance.create_col(1024)
 
-    mock_vecs_client.return_value.get_or_create_collection.assert_called_with(name="test_collection", dimension=1536)
+    mock_vecs_client.return_value.get_or_create_collection.assert_called_with(name="test_collection", dimension=1024)
     mock_collection.create_index.assert_called_with(method="hnsw", measure="cosine_distance")
 
 
@@ -133,7 +133,7 @@ def test_col_info(supabase_instance, mock_collection):
     assert info == {
         "name": "test_collection",
         "count": 100,
-        "dimension": 1536,
+        "dimension": 1024,
         "index": {"method": "hnsw", "metric": "cosine_distance"},
     }
 

@@ -50,7 +50,7 @@ class TestElasticsearchDB(unittest.TestCase):
             host=os.getenv("ES_URL"),
             port=9200,
             collection_name="test_collection",
-            embedding_model_dims=1536,
+            embedding_model_dims=1024,
             user=os.getenv("ES_USERNAME"),
             password=os.getenv("ES_PASSWORD"),
             verify_certs=False,
@@ -91,7 +91,7 @@ class TestElasticsearchDB(unittest.TestCase):
         mappings = create_args["body"]["mappings"]["properties"]
         self.assertEqual(mappings["text"]["type"], "text")
         self.assertEqual(mappings["vector"]["type"], "dense_vector")
-        self.assertEqual(mappings["vector"]["dims"], 1536)
+        self.assertEqual(mappings["vector"]["dims"], 1024)
         self.assertEqual(mappings["vector"]["index"], True)
         self.assertEqual(mappings["vector"]["similarity"], "cosine")
         self.assertEqual(mappings["metadata"]["type"], "object")
@@ -115,7 +115,7 @@ class TestElasticsearchDB(unittest.TestCase):
             host=os.getenv("ES_URL"),
             port=9200,
             collection_name="test_collection",
-            embedding_model_dims=1536,
+            embedding_model_dims=1024,
             user=os.getenv("ES_USERNAME"),
             password=os.getenv("ES_PASSWORD"),
             verify_certs=False,
@@ -134,7 +134,7 @@ class TestElasticsearchDB(unittest.TestCase):
             host=os.getenv("ES_URL"),
             port=9200,
             collection_name="test_collection",
-            embedding_model_dims=1536,
+            embedding_model_dims=1024,
             user=os.getenv("ES_USERNAME"),
             password=os.getenv("ES_PASSWORD"),
             verify_certs=False,
@@ -147,7 +147,7 @@ class TestElasticsearchDB(unittest.TestCase):
 
     def test_insert(self):
         # Test data
-        vectors = [[0.1] * 1536, [0.2] * 1536]
+        vectors = [[0.1] * 1024, [0.2] * 1024]
         payloads = [{"key1": "value1"}, {"key2": "value2"}]
         ids = ["id1", "id2"]
 
@@ -180,14 +180,14 @@ class TestElasticsearchDB(unittest.TestCase):
         mock_response = {
             "hits": {
                 "hits": [
-                    {"_id": "id1", "_score": 0.8, "_source": {"vector": [0.1] * 1536, "metadata": {"key1": "value1"}}}
+                    {"_id": "id1", "_score": 0.8, "_source": {"vector": [0.1] * 1024, "metadata": {"key1": "value1"}}}
                 ]
             }
         }
         self.client_mock.search.return_value = mock_response
 
         # Perform search
-        vectors = [[0.1] * 1536]
+        vectors = [[0.1] * 1024]
         results = self.es_db.search(query="", vectors=vectors, limit=5)
 
         # Verify search call
@@ -217,7 +217,7 @@ class TestElasticsearchDB(unittest.TestCase):
         self.es_db.custom_search_query.return_value = {"custom_key": "custom_value"}
 
         # Perform search
-        vectors = [[0.1] * 1536]
+        vectors = [[0.1] * 1024]
         limit = 5
         filters = {"key1": "value1"}
         self.es_db.search(query="", vectors=vectors, limit=limit, filters=filters)
@@ -234,7 +234,7 @@ class TestElasticsearchDB(unittest.TestCase):
         # Mock get response with correct structure
         mock_response = {
             "_id": "id1",
-            "_source": {"vector": [0.1] * 1536, "metadata": {"key": "value"}, "text": "sample text"},
+            "_source": {"vector": [0.1] * 1024, "metadata": {"key": "value"}, "text": "sample text"},
         }
         self.client_mock.get.return_value = mock_response
 
@@ -263,8 +263,8 @@ class TestElasticsearchDB(unittest.TestCase):
         mock_response = {
             "hits": {
                 "hits": [
-                    {"_id": "id1", "_source": {"vector": [0.1] * 1536, "metadata": {"key1": "value1"}}, "_score": 1.0},
-                    {"_id": "id2", "_source": {"vector": [0.2] * 1536, "metadata": {"key2": "value2"}}, "_score": 0.8},
+                    {"_id": "id1", "_source": {"vector": [0.1] * 1024, "metadata": {"key1": "value1"}}, "_score": 1.0},
+                    {"_id": "id2", "_source": {"vector": [0.2] * 1024, "metadata": {"key2": "value2"}}, "_score": 0.8},
                 ]
             }
         }

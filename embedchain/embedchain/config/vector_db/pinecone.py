@@ -11,7 +11,7 @@ class PineconeDBConfig(BaseVectorDbConfig):
         self,
         index_name: Optional[str] = None,
         api_key: Optional[str] = None,
-        vector_dimension: int = 1536,
+        vector_dimension: int = 1024,
         metric: Optional[str] = "cosine",
         pod_config: Optional[dict[str, any]] = None,
         serverless_config: Optional[dict[str, any]] = None,

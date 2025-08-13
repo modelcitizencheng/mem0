@@ -102,7 +102,7 @@ def test_azure_config_structure():
                 "service_name": "test-service",
                 "api_key": "test-key",
                 "collection_name": "test-collection",
-                "embedding_model_dims": 1536,
+                "embedding_model_dims": 1024,
             },
         },
         "embedder": {

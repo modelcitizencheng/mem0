@@ -46,7 +46,7 @@ class TestOpenSearchDB(unittest.TestCase):
             host=os.getenv("OS_URL"),
             port=9200,
             collection_name="test_collection",
-            embedding_model_dims=1536,
+            embedding_model_dims=1024,
             user=os.getenv("OS_USERNAME"),
             password=os.getenv("OS_PASSWORD"),
             verify_certs=False,
@@ -73,7 +73,7 @@ class TestOpenSearchDB(unittest.TestCase):
         self.assertEqual(create_args["index"], "test_collection")
         mappings = create_args["body"]["mappings"]["properties"]
         self.assertEqual(mappings["vector_field"]["type"], "knn_vector")
-        self.assertEqual(mappings["vector_field"]["dimension"], 1536)
+        self.assertEqual(mappings["vector_field"]["dimension"], 1024)
         self.client_mock.reset_mock()
         self.client_mock.indices.exists.return_value = True
         self.os_db.create_index()
@@ -81,7 +81,7 @@ class TestOpenSearchDB(unittest.TestCase):
 
     @pytest.mark.skip(reason="This test is not working as expected")
     def test_insert(self):
-        vectors = [[0.1] * 1536, [0.2] * 1536]
+        vectors = [[0.1] * 1024, [0.2] * 1024]
         payloads = [{"key1": "value1"}, {"key2": "value2"}]
         ids = ["id1", "id2"]
 
@@ -132,7 +132,7 @@ class TestOpenSearchDB(unittest.TestCase):
         self.assertIsNone(result)
 
     def test_update(self):
-        vector = [0.3] * 1536
+        vector = [0.3] * 1024
         payload = {"key3": "value3"}
         mock_search_response = {"hits": {"hits": [{"_id": "doc1", "_source": {"id": "id1"}}]}}
         self.client_mock.search.return_value = mock_search_response
@@ -156,13 +156,13 @@ class TestOpenSearchDB(unittest.TestCase):
                     {
                         "_id": "id1",
                         "_score": 0.8,
-                        "_source": {"vector_field": [0.1] * 1536, "id": "id1", "payload": {"key1": "value1"}},
+                        "_source": {"vector_field": [0.1] * 1024, "id": "id1", "payload": {"key1": "value1"}},
                     }
                 ]
             }
         }
         self.client_mock.search.return_value = mock_response
-        vectors = [[0.1] * 1536]
+        vectors = [[0.1] * 1024]
         results = self.os_db.search(query="", vectors=vectors, limit=5)
         self.client_mock.search.assert_called_once()
         search_args = self.client_mock.search.call_args[1]
@@ -196,7 +196,7 @@ class TestOpenSearchDB(unittest.TestCase):
                 host="localhost",
                 port=9200,
                 collection_name="test_collection",
-                embedding_model_dims=1536,
+                embedding_model_dims=1024,
                 http_auth=mock_signer,
                 verify_certs=True,
                 use_ssl=True,

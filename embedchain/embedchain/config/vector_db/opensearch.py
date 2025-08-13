@@ -10,7 +10,7 @@ class OpenSearchDBConfig(BaseVectorDbConfig):
         self,
         opensearch_url: str,
         http_auth: tuple[str, str],
-        vector_dimension: int = 1536,
+        vector_dimension: int = 1024,
         collection_name: Optional[str] = None,
         dir: Optional[str] = None,
         batch_size: Optional[int] = 100,
@@ -25,7 +25,7 @@ class OpenSearchDBConfig(BaseVectorDbConfig):
         :type opensearch_url: str, Eg, "http://localhost:9200"
         :param http_auth: Tuple of username and password
         :type http_auth: tuple[str, str], Eg, ("username", "password")
-        :param vector_dimension: Dimension of  the vector, defaults to 1536 (openai embedding model)
+        :param vector_dimension: Dimension of  the vector, defaults to 1024 (openai embedding model)
         :type vector_dimension: int, optional
         :param dir: Path to the database directory, where the database is stored, defaults to None
         :type dir: Optional[str], optional

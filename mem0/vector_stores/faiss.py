@@ -38,7 +38,7 @@ class FAISS(VectorStoreBase):
         path: Optional[str] = None,
         distance_strategy: str = "euclidean",
         normalize_L2: bool = False,
-        embedding_model_dims: int = 1536,
+        embedding_model_dims: int = 1024,
     ):
         """
         Initialize the FAISS vector store.

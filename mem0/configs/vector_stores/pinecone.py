@@ -8,7 +8,7 @@ class PineconeConfig(BaseModel):
     """Configuration for Pinecone vector database."""
 
     collection_name: str = Field("mem0", description="Name of the index/collection")
-    embedding_model_dims: int = Field(1536, description="Dimensions of the embedding model")
+    embedding_model_dims: int = Field(1024, description="Dimensions of the embedding model")
     client: Optional[Any] = Field(None, description="Existing Pinecone client instance")
     api_key: Optional[str] = Field(None, description="API key for Pinecone")
     environment: Optional[str] = Field(None, description="Pinecone environment")

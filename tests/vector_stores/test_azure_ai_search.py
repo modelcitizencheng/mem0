@@ -89,7 +89,7 @@ def test_config_validation_valid():
         collection_name="custom-index",
         service_name="test-service",
         api_key="test-api-key",
-        embedding_model_dims=1536,
+        embedding_model_dims=1024,
         compression_type="scalar",
         use_float16=True,
     )

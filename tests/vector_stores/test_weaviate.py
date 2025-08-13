@@ -38,7 +38,7 @@
 
 #         self.weaviate_db = Weaviate(
 #             collection_name="test_collection",
-#             embedding_model_dims=1536,
+#             embedding_model_dims=1024,
 #             cluster_url=os.getenv('WEAVIATE_CLUSTER_URL'),
 #             auth_client_secret=os.getenv('WEAVIATE_API_KEY'),
 #             additional_headers={"X-OpenAI-Api-Key": "test_key"},
@@ -59,7 +59,7 @@
 
 #     def test_create_col(self):
 #         self.client_mock.collections.exists.return_value = False
-#         self.weaviate_db.create_col(vector_size=1536)
+#         self.weaviate_db.create_col(vector_size=1024)
 
 
 #         self.client_mock.collections.create.assert_called_once()
@@ -68,7 +68,7 @@
 #         self.client_mock.reset_mock()
 
 #         self.client_mock.collections.exists.return_value = True
-#         self.weaviate_db.create_col(vector_size=1536)
+#         self.weaviate_db.create_col(vector_size=1024)
 
 #         self.client_mock.collections.create.assert_not_called()
 
@@ -81,7 +81,7 @@
 #             "results": [{"id": "id1"}, {"id": "id2"}]
 #         }
 
-#         vectors = [[0.1] * 1536, [0.2] * 1536]
+#         vectors = [[0.1] * 1024, [0.2] * 1024]
 #         payloads = [{"key1": "value1"}, {"key2": "value2"}]
 #         ids = [str(uuid.uuid4()), str(uuid.uuid4())]
 
@@ -147,7 +147,7 @@
 #         self.client_mock.collections.get.return_value.query.hybrid = mock_hybrid
 #         mock_hybrid.return_value = mock_response
 
-#         vectors = [[0.1] * 1536]
+#         vectors = [[0.1] * 1024]
 #         results = self.weaviate_db.search(query="", vectors=vectors, limit=5)
 
 #         mock_hybrid.assert_called_once()
