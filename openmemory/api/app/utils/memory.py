@@ -126,6 +126,24 @@ def _fix_ollama_urls(config_section):
     return config_section
 
 
+def _handle_openai_config(config_section, is_embedding=False):
+    """
+    Handle OpenAI compatible API configuration.
+    Ensures openai_base_url is properly set if provided.
+    For embedding models, rename openai_embedding_base_url to openai_base_url.
+    """
+    if not config_section or "config" not in config_section:
+        return config_section
+    
+    # For embedding models, rename openai_embedding_base_url to openai_base_url
+    if is_embedding and "openai_embedding_base_url" in config_section["config"]:
+        config_section["config"]["openai_base_url"] = config_section["config"]["openai_embedding_base_url"]
+        del config_section["config"]["openai_embedding_base_url"]
+    
+    # The openai_base_url will be passed through to the Mem0 library
+    return config_section
+
+
 def reset_memory_client():
     """Reset the global memory client to force reinitialization with new config."""
     global _memory_client, _config_hash
@@ -135,33 +153,67 @@ def reset_memory_client():
 
 def get_default_memory_config():
     """Get default memory client configuration with sensible defaults."""
-    return {
+    # Get environment variables with fallback values
+    openai_api_key = os.environ.get("OPENAI_API_KEY", "")
+    openai_base_url = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1")
+    openai_completion_model = os.environ.get("OPENAI_COMPLETION_MODEL", "gpt-4o-mini")
+    openai_embedding_base_url = os.environ.get("OPENAI_EMBEDDING_BASE_URL", "https://api.openai.com/v1")
+    openai_embedding_api_key = os.environ.get("OPENAI_EMBEDDING_API_KEY", openai_api_key)  # Default to same API key as LLM
+    openai_embedding_model = os.environ.get("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
+    openai_embedding_dimension = int(os.environ.get("OPENAI_EMBEDDING_DIMENSION", "1536"))
+    
+    qdrant_url = os.environ.get("QDRANT_URL", "http://localhost:6333")
+    qdrant_collection_name = os.environ.get("QDRANT_COLLECTION_NAME", "openmemory")
+    
+    # NEO4J配置项
+    neo4j_uri = os.environ.get("NEO4J_URI", "neo4j://neo4j:7687")
+    neo4j_username = os.environ.get("NEO4J_USERNAME", "neo4j")
+    neo4j_password = os.environ.get("NEO4J_PASSWORD", "mem0graph")
+    
+    config = {
         "vector_store": {
             "provider": "qdrant",
             "config": {
-                "collection_name": "openmemory",
+                "collection_name": qdrant_collection_name,
                 "host": "mem0_store",
                 "port": 6333,
+                "url": qdrant_url
             }
         },
         "llm": {
             "provider": "openai",
             "config": {
-                "model": "gpt-4o-mini",
+                "model": openai_completion_model,
                 "temperature": 0.1,
                 "max_tokens": 2000,
-                "api_key": "env:OPENAI_API_KEY"
+                "api_key": "env:OPENAI_API_KEY",
+                "openai_base_url": openai_base_url
             }
         },
         "embedder": {
             "provider": "openai",
             "config": {
-                "model": "text-embedding-3-small",
-                "api_key": "env:OPENAI_API_KEY"
+                "model": openai_embedding_model,
+                "api_key": "env:OPENAI_EMBEDDING_API_KEY",  # Default to same API key as LLM
+                "openai_base_url": openai_embedding_base_url,
+                "embedding_dims": openai_embedding_dimension
             }
         },
         "version": "v1.1"
     }
+    
+    # 如果提供了NEO4J配置，则添加graph_store配置
+    if neo4j_uri and neo4j_username and neo4j_password:
+        config["graph_store"] = {
+            "provider": "neo4j",
+            "config": {
+                "url": neo4j_uri,
+                "username": neo4j_username,
+                "password": neo4j_password,
+            },
+        }
+    
+    return config
 
 
 def _parse_environment_variables(config_dict):
@@ -234,6 +286,9 @@ def get_memory_client(custom_instructions: str = None):
                         # Fix Ollama URLs for Docker if needed
                         if config["llm"].get("provider") == "ollama":
                             config["llm"] = _fix_ollama_urls(config["llm"])
+                        # Handle OpenAI compatible API configuration
+                        elif config["llm"].get("provider") == "openai":
+                            config["llm"] = _handle_openai_config(config["llm"])
                     
                     # Update Embedder configuration if available
                     if "embedder" in mem0_config and mem0_config["embedder"] is not None:
@@ -242,6 +297,9 @@ def get_memory_client(custom_instructions: str = None):
                         # Fix Ollama URLs for Docker if needed
                         if config["embedder"].get("provider") == "ollama":
                             config["embedder"] = _fix_ollama_urls(config["embedder"])
+                        # Handle OpenAI compatible API configuration
+                        elif config["embedder"].get("provider") == "openai":
+                            config["embedder"] = _handle_openai_config(config["embedder"], is_embedding=True)
             else:
                 print("No configuration found in database, using defaults")
                     

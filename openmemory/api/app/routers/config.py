@@ -1,4 +1,5 @@
 from typing import Any, Dict, Optional
+import os
 
 from app.database import get_db
 from app.models import Config as ConfigModel
@@ -15,6 +16,7 @@ class LLMConfig(BaseModel):
     max_tokens: int = Field(..., description="Maximum tokens to generate")
     api_key: Optional[str] = Field(None, description="API key or 'env:API_KEY' to use environment variable")
     ollama_base_url: Optional[str] = Field(None, description="Base URL for Ollama server (e.g., http://host.docker.internal:11434)")
+    openai_base_url: Optional[str] = Field(None, description="Base URL for OpenAI compatible API (e.g., https://api.openai.com/v1)")
 
 class LLMProvider(BaseModel):
     provider: str = Field(..., description="LLM provider name")
@@ -24,10 +26,21 @@ class EmbedderConfig(BaseModel):
     model: str = Field(..., description="Embedder model name")
     api_key: Optional[str] = Field(None, description="API key or 'env:API_KEY' to use environment variable")
     ollama_base_url: Optional[str] = Field(None, description="Base URL for Ollama server (e.g., http://host.docker.internal:11434)")
+    openai_embedding_base_url: Optional[str] = Field(None, description="Base URL for OpenAI compatible Embedding API (e.g., https://api.openai.com/v1)")
 
 class EmbedderProvider(BaseModel):
     provider: str = Field(..., description="Embedder provider name")
     config: EmbedderConfig
+
+class GraphStoreConfig(BaseModel):
+    url: Optional[str] = Field(None, description="Graph store URL")
+    username: Optional[str] = Field(None, description="Graph store username")
+    password: Optional[str] = Field(None, description="Graph store password")
+    database: Optional[str] = Field(None, description="Graph store database name")
+
+class GraphStoreProvider(BaseModel):
+    provider: str = Field(..., description="Graph store provider name")
+    config: GraphStoreConfig
 
 class OpenMemoryConfig(BaseModel):
     custom_instructions: Optional[str] = Field(None, description="Custom instructions for memory management and fact extraction")
@@ -35,6 +48,7 @@ class OpenMemoryConfig(BaseModel):
 class Mem0Config(BaseModel):
     llm: Optional[LLMProvider] = None
     embedder: Optional[EmbedderProvider] = None
+    graph_store: Optional[GraphStoreProvider] = None
 
 class ConfigSchema(BaseModel):
     openmemory: Optional[OpenMemoryConfig] = None
@@ -42,7 +56,12 @@ class ConfigSchema(BaseModel):
 
 def get_default_configuration():
     """Get the default configuration with sensible defaults for LLM and embedder."""
-    return {
+    # Get NEO4J environment variables
+    neo4j_uri = os.environ.get("NEO4J_URI")
+    neo4j_username = os.environ.get("NEO4J_USERNAME")
+    neo4j_password = os.environ.get("NEO4J_PASSWORD")
+    
+    config = {
         "openmemory": {
             "custom_instructions": None
         },
@@ -65,6 +84,19 @@ def get_default_configuration():
             }
         }
     }
+    
+    # Add graph_store configuration if NEO4J environment variables are provided
+    if neo4j_uri and neo4j_username and neo4j_password:
+        config["mem0"]["graph_store"] = {
+            "provider": "neo4j",
+            "config": {
+                "url": neo4j_uri,
+                "username": neo4j_username,
+                "password": neo4j_password
+            }
+        }
+    
+    return config
 
 def get_config_from_db(db: Session, key: str = "main"):
     """Get configuration from database."""
@@ -97,6 +129,10 @@ def get_config_from_db(db: Session, key: str = "main"):
         # Ensure embedder config exists with defaults
         if "embedder" not in config_value["mem0"] or config_value["mem0"]["embedder"] is None:
             config_value["mem0"]["embedder"] = default_config["mem0"]["embedder"]
+        
+        # Ensure graph_store config exists with defaults if it's in the default config
+        if "graph_store" in default_config["mem0"] and (not config_value["mem0"].get("graph_store")):
+            config_value["mem0"]["graph_store"] = default_config["mem0"]["graph_store"]
     
     # Save the updated config back to database if it was modified
     if config_value != config.value:
@@ -221,6 +257,30 @@ async def get_openmemory_configuration(db: Session = Depends(get_db)):
     openmemory_config = config.get("openmemory", {})
     return openmemory_config
 
+@router.get("/mem0/graph_store", response_model=GraphStoreProvider)
+async def get_graph_store_configuration(db: Session = Depends(get_db)):
+    """Get only the Graph Store configuration."""
+    config = get_config_from_db(db)
+    graph_store_config = config.get("mem0", {}).get("graph_store", {})
+    return graph_store_config
+
+@router.put("/mem0/graph_store", response_model=GraphStoreProvider)
+async def update_graph_store_configuration(graph_store_config: GraphStoreProvider, db: Session = Depends(get_db)):
+    """Update only the Graph Store configuration."""
+    current_config = get_config_from_db(db)
+    
+    # Ensure mem0 key exists
+    if "mem0" not in current_config:
+        current_config["mem0"] = {}
+    
+    # Update the Graph Store configuration
+    current_config["mem0"]["graph_store"] = graph_store_config.dict(exclude_none=True)
+    
+    # Save the configuration to database
+    save_config_to_db(db, current_config)
+    reset_memory_client()
+    return current_config["mem0"]["graph_store"]
+
 @router.put("/openmemory", response_model=OpenMemoryConfig)
 async def update_openmemory_configuration(openmemory_config: OpenMemoryConfig, db: Session = Depends(get_db)):
     """Update only the OpenMemory configuration."""
@@ -236,4 +296,4 @@ async def update_openmemory_configuration(openmemory_config: OpenMemoryConfig, d
     # Save the configuration to database
     save_config_to_db(db, current_config)
     reset_memory_client()
-    return current_config["openmemory"] 
+    return current_config["openmemory"]

@@ -8,7 +8,7 @@ OpenMemory is your personal memory layer for LLMs - private, portable, and open-
 
 ### Prerequisites
 - Docker
-- OpenAI API Key
+- OpenAI API Key (or compatible API service)
 
 You can quickly run OpenMemory by running the following command:
 
@@ -33,7 +33,7 @@ curl -sL https://raw.githubusercontent.com/mem0ai/mem0/main/openmemory/run.sh | 
 - Docker and Docker Compose
 - Python 3.9+ (for backend development)
 - Node.js (for frontend development)
-- OpenAI API Key (required for LLM interactions, run `cp api/.env.example api/.env` then change **OPENAI_API_KEY** to yours)
+- OpenAI API Key (or compatible API service, required for LLM interactions, run `cp api/.env.example api/.env` then change **OPENAI_API_KEY** to yours)
 
 ## Quickstart
 
@@ -43,12 +43,12 @@ Before running the project, you need to configure environment variables for both
 
 You can do this in one of the following ways:
 
-- **Manually**:  
+- **Manually**:
   Create a `.env` file in each of the following directories:
   - `/api/.env`
   - `/ui/.env`
 
-- **Using `.env.example` files**:  
+- **Using `.env.example` files**:
   Copy and rename the example files:
 
   ```bash
@@ -56,17 +56,32 @@ You can do this in one of the following ways:
   cp ui/.env.example ui/.env
   ```
 
- - **Using Makefile** (if supported):  
-    Run:
-  
-   ```bash
-   make env
-   ```
+ - **Using Makefile** (if supported):
+   Run:
+ 
+  ```bash
+  make env
+  ```
 - #### Example `/api/.env`
 
 ```env
-OPENAI_API_KEY=sk-xxx
-USER=<user-id> # The User Id you want to associate the memories with 
+# 下面是必要的配置
+NEO4J_URI=neo4j://localhost:7687
+NEO4J_USERNAME=neo4j
+NEO4J_PASSWORD=mem0graph
+
+QDRANT_URL=http://localhost:6333
+
+OPENAI_API_KEY=sk-3762ca6276b7405c9e8271c5d88e0758
+OPENAI_BASE_URL=https://api.deepseek.com
+OPENAI_COMPLETION_MODEL=deepseek-chat
+
+OPENAI_EMBEDDING_BASE_URL=https://api.siliconflow.cn/v1
+OPENAI_EMBEDDING_API_KEY=sk-nxxfotpwxlhsumggdmbhrmxfxeoalazcchlayxtovuakcsmr
+OPENAI_EMBEDDING_MODEL=BAAI/bge-m3
+OPENAI_EMBEDDING_DIMENSION=1024
+
+USER=<user-id> # The User Id you want to associate the memories with
 ```
 - #### Example `/ui/.env`
 
@@ -85,6 +100,8 @@ make up  # runs openmemory mcp server and ui
 After running these commands, you will have:
 - OpenMemory MCP server running at: http://localhost:8765 (API documentation available at http://localhost:8765/docs)
 - OpenMemory UI running at: http://localhost:3000
+- Qdrant Vector Database running at: http://localhost:6333
+- Neo4j Graph Database running at: http://localhost:7474 (Bolt: neo4j://localhost:7687)
 
 #### UI not working on `localhost:3000`?
 
@@ -105,6 +122,63 @@ npx @openmemory/install local http://localhost:8765/mcp/<client-name>/sse/<user-
 ```
 
 Replace `<client-name>` with the desired client name and `<user-id>` with the value specified in your environment variables.
+
+### Configuration Management API
+
+OpenMemory provides a comprehensive API for managing configurations dynamically. You can use the following endpoints to manage your configurations:
+
+- `GET /api/v1/config/` - Get current configuration
+- `PUT /api/v1/config/` - Update entire configuration
+- `POST /api/v1/config/reset` - Reset configuration to default values
+- `GET /api/v1/config/mem0/llm` - Get LLM configuration
+- `PUT /api/v1/config/mem0/llm` - Update LLM configuration
+- `GET /api/v1/config/mem0/embedder` - Get Embedder configuration
+- `PUT /api/v1/config/mem0/embedder` - Update Embedder configuration
+- `GET /api/v1/config/mem0/graph_store` - Get Graph Store configuration
+- `PUT /api/v1/config/mem0/graph_store` - Update Graph Store configuration
+- `GET /api/v1/config/openmemory` - Get OpenMemory configuration
+- `PUT /api/v1/config/openmemory` - Update OpenMemory configuration
+
+Example of updating LLM configuration via API:
+```json
+{
+  "llm": {
+    "provider": "openai",
+    "config": {
+      "model": "gpt-4o-mini",
+      "api_key": "your-api-key",
+      "openai_base_url": "https://api.openai.com/v1"
+    }
+  }
+}
+```
+
+### Using Custom API Services
+
+OpenMemory supports any OpenAI-compatible API services. You can configure them in your `/api/.env` file:
+
+```env
+# Using DeepSeek for LLM
+OPENAI_BASE_URL=https://api.deepseek.com
+OPENAI_COMPLETION_MODEL=deepseek-chat
+
+# Using SiliconFlow for Embedding
+OPENAI_EMBEDDING_BASE_URL=https://api.siliconflow.cn/v1
+OPENAI_EMBEDDING_MODEL=BAAI/bge-m3
+OPENAI_EMBEDDING_DIMENSION=1024
+```
+
+### Using Different API Keys
+
+If you want to use different API keys for LLM and Embedder, you can configure them separately:
+
+```env
+# LLM API Key
+OPENAI_API_KEY=sk-llm-xxx
+
+# Embedder API Key
+OPENAI_EMBEDDING_API_KEY=sk-embedding-xxx
+```
 
 
 ## Project Structure
