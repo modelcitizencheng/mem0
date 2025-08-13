@@ -175,7 +175,8 @@ def get_default_memory_config():
             "provider": "qdrant",
             "config": {
                 "collection_name": qdrant_collection_name,
-                "url": qdrant_url
+                "url": qdrant_url,
+                "vector_size": openai_embedding_dimension
             }
         },
         "llm": {
