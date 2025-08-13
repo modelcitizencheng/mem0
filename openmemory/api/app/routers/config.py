@@ -56,6 +56,14 @@ class ConfigSchema(BaseModel):
 
 def get_default_configuration():
     """Get the default configuration with sensible defaults for LLM and embedder."""
+    # Get environment variables with fallback values
+    openai_api_key = os.environ.get("OPENAI_API_KEY", "")
+    openai_base_url = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1")
+    openai_completion_model = os.environ.get("OPENAI_COMPLETION_MODEL", "gpt-4o-mini")
+    openai_embedding_base_url = os.environ.get("OPENAI_EMBEDDING_BASE_URL", "https://api.openai.com/v1")
+    openai_embedding_api_key = os.environ.get("OPENAI_EMBEDDING_API_KEY", openai_api_key)
+    openai_embedding_model = os.environ.get("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
+    
     # Get NEO4J environment variables
     neo4j_uri = os.environ.get("NEO4J_URI")
     neo4j_username = os.environ.get("NEO4J_USERNAME")
@@ -69,17 +77,19 @@ def get_default_configuration():
             "llm": {
                 "provider": "openai",
                 "config": {
-                    "model": "gpt-4o-mini",
+                    "model": openai_completion_model,
                     "temperature": 0.1,
                     "max_tokens": 2000,
-                    "api_key": "env:OPENAI_API_KEY"
+                    "api_key": "env:OPENAI_API_KEY",
+                    "openai_base_url": openai_base_url
                 }
             },
             "embedder": {
                 "provider": "openai",
                 "config": {
-                    "model": "text-embedding-3-small",
-                    "api_key": "env:OPENAI_API_KEY"
+                    "model": openai_embedding_model,
+                    "api_key": "env:OPENAI_EMBEDDING_API_KEY",
+                    "openai_embedding_base_url": openai_embedding_base_url
                 }
             }
         }
