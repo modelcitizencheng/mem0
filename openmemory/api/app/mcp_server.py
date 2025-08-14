@@ -19,6 +19,7 @@ import contextvars
 import datetime
 import json
 import logging
+import time
 import uuid
 
 from app.database import SessionLocal
@@ -40,12 +41,42 @@ load_dotenv()
 mcp = FastMCP("mem0-mcp-server")
 
 # Don't initialize memory client at import time - do it lazily when needed
+# Add a timestamp for last initialization attempt
+_last_init_attempt = 0
+
 def get_memory_client_safe():
-    """Get memory client with error handling. Returns None if client cannot be initialized."""
+    """Get memory client with error handling and retry logic. Returns None if client cannot be initialized."""
+    global _last_init_attempt
+    
     try:
-        return get_memory_client()
+        client = get_memory_client()
+        
+        # If client is None and we haven't tried recently, try to reset and retry
+        if not client:
+            current_time = time.time()
+            # Retry every 30 seconds
+            if current_time - _last_init_attempt > 30:
+                print("Retrying memory client initialization...")
+                _last_init_attempt = current_time
+                # Reset the memory client to force reinitialization
+                from app.utils.memory import reset_memory_client
+                reset_memory_client()
+                client = get_memory_client()
+        
+        return client
     except Exception as e:
         logging.warning(f"Failed to get memory client: {e}")
+        # Try reset and retry even on exception
+        try:
+            current_time = time.time()
+            if current_time - _last_init_attempt > 30:
+                print(f"Retrying memory client initialization after exception: {e}")
+                _last_init_attempt = current_time
+                from app.utils.memory import reset_memory_client
+                reset_memory_client()
+                return get_memory_client()
+        except Exception as retry_error:
+            logging.warning(f"Failed to retry memory client initialization: {retry_error}")
         return None
 
 # Context variables for user_id and client_name
