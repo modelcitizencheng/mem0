@@ -60,10 +60,12 @@ curl -sL https://raw.githubusercontent.com/mem0ai/mem0/main/openmemory/run.sh | 
  - **使用Makefile**（如果支持）：
    运行：
  
-  ```bash
+```bash
   make env
   ```
 - #### 示例 `/api/.env`
+
+在容器环境中部署时，**必须设置 `QDRANT_URL`** 为内部服务地址（例如 `http://mem0_store:6333`）。
 
 ```env
 # 下面是必要的配置
@@ -71,7 +73,8 @@ NEO4J_URI=neo4j://localhost:7687
 NEO4J_USERNAME=neo4j
 NEO4J_PASSWORD=mem0graph
 
-QDRANT_URL=http://localhost:6333
+# 容器部署时请将 QDRANT_URL 指向服务名
+QDRANT_URL=http://mem0_store:6333
 
 OPENAI_API_KEY=sk-3762ca6276b7405c9e8271c5d88e0758
 OPENAI_BASE_URL=https://api.deepseek.com
