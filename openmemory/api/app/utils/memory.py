@@ -162,7 +162,10 @@ def get_default_memory_config():
     openai_embedding_model = os.environ.get("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
     openai_embedding_dimension = int(os.environ.get("OPENAI_EMBEDDING_DIMENSION", "1024"))
     
-    qdrant_url = os.environ.get("QDRANT_URL", "http://localhost:6333")
+    qdrant_url = os.environ.get("QDRANT_URL")
+    if not qdrant_url:
+        # Use service name inside Docker container if DOCKER flag is set
+        qdrant_url = "http://mem0_store:6333" if os.environ.get("DOCKER") else "http://localhost:6333"
     qdrant_collection_name = os.environ.get("QDRANT_COLLECTION_NAME", "openmemory")
     
     # NEO4J配置项
