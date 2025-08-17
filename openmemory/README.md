@@ -64,13 +64,16 @@ You can do this in one of the following ways:
   ```
 - #### Example `/api/.env`
 
+When deploying in containers, **you must set `QDRANT_URL`** to the internal service URL (e.g., `http://mem0_store:6333`).
+
 ```env
 # 下面是必要的配置
 NEO4J_URI=neo4j://localhost:7687
 NEO4J_USERNAME=neo4j
 NEO4J_PASSWORD=mem0graph
 
-QDRANT_URL=http://localhost:6333
+# When running in Docker, point QDRANT_URL to the internal service
+QDRANT_URL=http://mem0_store:6333
 
 OPENAI_API_KEY=sk-3762ca6276b7405c9e8271c5d88e0758
 OPENAI_BASE_URL=https://api.deepseek.com
